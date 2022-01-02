@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DeterministicFiniteAutomaton
 {
@@ -7,62 +8,7 @@ namespace DeterministicFiniteAutomaton
     {
         static void Main(string[] args)
         {
-            int nodeCount = 18;
-
-            List<Tuple<int, int, string>> edgeConnections = new List<Tuple<int, int, string>>()
-            {
-                // xdy
-                new Tuple<int, int, string>(0, 1, "[1-9]"),
-                new Tuple<int, int, string>(1, 1, "[0-9]"),
-                new Tuple<int, int, string>(1, 2, "[d]"),
-                new Tuple<int, int, string>(2, 3, "[1-9]"),
-                new Tuple<int, int, string>(3, 3, "[0-9]"),
-
-                // Keeps
-                new Tuple<int, int, string>(3, 4, "[k]"),
-                new Tuple<int, int, string>(4, 5, "[h]"),
-                new Tuple<int, int, string>(4, 7, "[l]"),
-                new Tuple<int, int, string>(5, 6, "[1-9]"),
-                new Tuple<int, int, string>(6, 6, "[0-9]"),
-                new Tuple<int, int, string>(6, 4, "[k]"),
-                new Tuple<int, int, string>(7, 8, "[1-9]"),
-                new Tuple<int, int, string>(8, 8, "[0-9]"),
-                new Tuple<int, int, string>(8, 4, "[k]"),
-
-                // Drops
-                new Tuple<int, int, string>(3, 9, "[d]"),
-                new Tuple<int, int, string>(9, 10, "[h]"),
-                new Tuple<int, int, string>(9, 12, "[l]"),
-                new Tuple<int, int, string>(10, 11, "[1-9]"),
-                new Tuple<int, int, string>(11, 11, "[0-9]"),
-                new Tuple<int, int, string>(11, 9, "[d]"),
-                new Tuple<int, int, string>(12, 13, "[1-9]"),
-                new Tuple<int, int, string>(13, 13, "[0-9]"),
-                new Tuple<int, int, string>(13, 9, "[d]"),
-
-                // Multiplier
-                new Tuple<int, int, string>(3, 14, @"[×x*\/÷]"),
-                new Tuple<int, int, string>(6, 14, @"[×x*\/÷]"),
-                new Tuple<int, int, string>(8, 14, @"[×x*\/÷]"),
-                new Tuple<int, int, string>(11, 14, @"[×x*\/÷]"),
-                new Tuple<int, int, string>(13, 14, @"[×x*\/÷]"),
-                new Tuple<int, int, string>(14, 15, "[1-9]"),
-                new Tuple<int, int, string>(15, 15, "[0-9]"),
-
-                // Additions
-                new Tuple<int, int, string>(3, 16, "[+-]"),
-                new Tuple<int, int, string>(6, 16, "[+-]"),
-                new Tuple<int, int, string>(7, 16, "[+-]"),
-                new Tuple<int, int, string>(11, 16, "[+-]"),
-                new Tuple<int, int, string>(13, 16, "[+-]"),
-                new Tuple<int, int, string>(15, 16, "[+-]"),
-                new Tuple<int, int, string>(16, 17, "[1-9]"),
-                new Tuple<int, int, string>(17, 17, "[0-9]"),
-            };
-
-            List<int> acceptStates = new List<int>() { 3, 6, 8, 11, 13, 15, 17 };
-
-            DeterministicFiniteAutomaton myAuto = new DeterministicFiniteAutomaton(nodeCount, edgeConnections, acceptStates);
+        
 
             bool result;
 
