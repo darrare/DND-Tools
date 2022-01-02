@@ -1,0 +1,74 @@
+{ "currencyRollingGuide" : [
+  { "challengeLevel" : [
+    { "levelRange":"0-4", "diceRoll" : [
+      { "rollRange":"01-30", "rolledCurrencies": [
+        { "currencyType":"cp", "rollFormat":"5d6" }
+      ]},
+	  { "rollRange":"31-60", "rolledCurrencies": [
+        { "currencyType":"sp", "rollFormat":"4d6" }
+      ]},
+	  { "rollRange":"61-70", "rolledCurrencies": [
+        { "currencyType":"ep", "rollFormat":"3d6" }
+      ]},
+	  { "rollRange":"71-95", "rolledCurrencies": [
+        { "currencyType":"gp", "rollFormat":"3d6" }
+      ]},
+	  { "rollRange":"95-100", "rolledCurrencies": [
+        { "currencyType":"pp", "rollFormat":"1d6" }
+      ]}
+    ]},
+	{ "levelRange":"5-10", "diceRoll" : [
+      { "rollRange":"01-30", "rolledCurrencies": [
+        { "currencyType":"cp", "rollFormat":"4d6x100" },
+		{ "currencyType":"ep", "rollFormat":"1d6x10" }
+      ]},
+	  { "rollRange":"31-60", "rolledCurrencies": [
+        { "currencyType":"sp", "rollFormat":"6d6x10" },
+		{ "currencyType":"gp", "rollFormat":"2d6x10" }
+      ]},
+	  { "rollRange":"61-70", "rolledCurrencies": [
+        { "currencyType":"ep", "rollFormat":"3d6x10" },
+		{ "currencyType":"gp", "rollFormat":"2d6x10" }
+      ]},
+	  { "rollRange":"71-95", "rolledCurrencies": [
+        { "currencyType":"gp", "rollFormat":"4d6x10" }
+      ]},
+	  { "rollRange":"95-100", "rolledCurrencies": [
+        { "currencyType":"gp", "rollFormat":"2d6x10" },
+		{ "currencyType":"pp", "rollFormat":"3d6" }
+      ]}
+    ]},
+    { "levelRange":"11-16", "diceRoll" : [
+      { "rollRange":"01-20", "rolledCurrencies": [
+        { "currencyType":"sp", "rollFormat":"4d6x100" },
+		{ "currencyType":"gp", "rollFormat":"1d6x100" }
+      ]},
+	  { "rollRange":"21-35", "rolledCurrencies": [
+        { "currencyType":"ep", "rollFormat":"1d6x100" },
+		{ "currencyType":"gp", "rollFormat":"1d6x100" }
+      ]},
+	  { "rollRange":"36-75", "rolledCurrencies": [
+        { "currencyType":"gp", "rollFormat":"2d6x100" },
+		{ "currencyType":"pp", "rollFormat":"1d6x10" }
+      ]},
+	  { "rollRange":"76-100", "rolledCurrencies": [
+        { "currencyType":"gp", "rollFormat":"2d6x100" },
+		{ "currencyType":"pp", "rollFormat":"2d6x10" }
+      ]}
+    ]},
+    { "levelRange":"17-99", "diceRoll" : [
+      { "rollRange":"01-15", "rolledCurrencies": [
+        { "currencyType":"ep", "rollFormat":"2d6x1000" },
+		{ "currencyType":"gp", "rollFormat":"8d6x100" }
+      ]},
+	  { "rollRange":"16-55", "rolledCurrencies": [
+        { "currencyType":"gp", "rollFormat":"1d6x1000" },
+		{ "currencyType":"pp", "rollFormat":"1d6x100" }
+      ]},
+	  { "rollRange":"56-100", "rolledCurrencies": [
+        { "currencyType":"gp", "rollFormat":"1d6x1000" },
+		{ "currencyType":"pp", "rollFormat":"2d6x100" }
+      ]}
+    ]}
+  ]}
+]}
