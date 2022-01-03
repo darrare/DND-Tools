@@ -17,7 +17,7 @@ namespace DndTools.Models.TreasureHoard
             if (challengeRating < 0)
                 throw new Exception($"Challenge rating of {challengeRating} out of range.");
 
-            int diceRoll = DiceRoller.RollForSum("1d100");
+            int diceRoll = DiceRoller.Roll("1d100").Value;
 
             CurrencyRollingGuide jsonData = 
                 JsonConvert.DeserializeObject<CurrencyRollingGuide>(calculateRollingGuideJson);

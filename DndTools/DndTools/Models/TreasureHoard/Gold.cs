@@ -14,7 +14,7 @@ namespace DndTools.Models.TreasureHoard
 
         public Gold(string advancedDiceFormat)
         {
-            Value = DiceRoller.RollForSum(advancedDiceFormat);
+            Value = DiceRoller.Roll(advancedDiceFormat).Value;
         }
     }
 }

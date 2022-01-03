@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 
-namespace DeterministicFiniteAutomaton
+namespace DndTools.Models.TreasureHoard.Helpers
 {
     /// <summary>
     /// This Deterministic Finite Automaton is designed to handle string 
@@ -89,7 +87,7 @@ namespace DeterministicFiniteAutomaton
 
             public DfaNode TransitionOnChar(char inputChar)
             {
-                List<DfaEdge> validTransitions = 
+                List<DfaEdge> validTransitions =
                     ExitTransitions.Where(t => Regex.IsMatch(inputChar.ToString(), t.RegexTransitionString)).ToList();
 
 

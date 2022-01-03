@@ -9,10 +9,16 @@ namespace DeterministicFiniteAutomaton
 {
     public class RollResults
     {
+        /// <summary>
+        /// This is manipulated explicitly in the automata to get accurate results when
+        /// calling multiple keep functions in the same command notation. Do not use this
+        /// value anywhere but within DiceRoller class
+        /// </summary>
+        public List<int> PlaceholderRollBucket { get; set; } = new List<int>();
         public List<int> Rolls { get; set; } = new List<int>();
         public float Multiplier { get; set; } = 1;
         public int Addition { get; set; } = 0;
-        public int TotalValue { get { return (int)((float)Rolls.Sum() * Multiplier + Addition); } }
+        public int Value { get { return (int)((float)Rolls.Sum() * Multiplier + Addition); } }
     }
 
     public static class DiceRoller
@@ -28,12 +34,14 @@ namespace DeterministicFiniteAutomaton
 
         public static RollResults Roll(string advancedDiceNotation)
         {
+            Random.SetSeed(0);
             RollResults results = new RollResults();
             ResultsPointer = results;
 
-            Automaton.RunString(advancedDiceNotation);
-
-            return results;
+            if (Automaton.RunString(advancedDiceNotation))
+                return results;
+            else
+                throw new Exception($"Failure on rolling dice with notation {advancedDiceNotation}");
         }
 
         private static void InitializeAutomiton()
@@ -46,28 +54,36 @@ namespace DeterministicFiniteAutomaton
                 int diceSize = workingString.StripTrailingInteger();
                 for (int i = 0; i < numDice; i++)
                 {
-                    ResultsPointer.Rolls.Add(Random.Int(1, diceSize + 1));
+                    ResultsPointer.PlaceholderRollBucket.Add(Random.Int(1, diceSize + 1));
                 }
             };
             Action<string> keepHigh = (workingString) =>
             {
                 int numToKeep = workingString.StripTrailingInteger();
-                ResultsPointer.Rolls = ResultsPointer.Rolls.OrderBy(t => t).Take(numToKeep).ToList();
+                IEnumerable<int> consideredRolls = ResultsPointer.PlaceholderRollBucket.OrderByDescending(t => t).Take(numToKeep);
+                ResultsPointer.Rolls.AddRange(consideredRolls);
+                ResultsPointer.PlaceholderRollBucket.RemoveRange(consideredRolls);
             };
             Action<string> keepLow = (workingString) =>
             {
                 int numToKeep = workingString.StripTrailingInteger();
-                ResultsPointer.Rolls = ResultsPointer.Rolls.OrderBy(t => t).TakeLast(numToKeep).ToList();
+                IEnumerable<int> consideredRolls = ResultsPointer.PlaceholderRollBucket.OrderByDescending(t => t).TakeLast(numToKeep);
+                ResultsPointer.Rolls.AddRange(consideredRolls);
+                ResultsPointer.PlaceholderRollBucket.RemoveRange(consideredRolls);
             };
             Action<string> dropHigh = (workingString) =>
             {
                 int numToDrop = workingString.StripTrailingInteger();
-                ResultsPointer.Rolls = ResultsPointer.Rolls.OrderBy(t => t).TakeLast(ResultsPointer.Rolls.Count - numToDrop).ToList();
+               IEnumerable<int> consideredRolls = ResultsPointer.PlaceholderRollBucket.OrderByDescending(t => t).TakeLast(ResultsPointer.PlaceholderRollBucket.Count - numToDrop);
+                ResultsPointer.Rolls.AddRange(consideredRolls);
+                ResultsPointer.PlaceholderRollBucket.RemoveRange(consideredRolls);
             };
             Action<string> dropLow = (workingString) =>
             {
                 int numToDrop = workingString.StripTrailingInteger();
-                ResultsPointer.Rolls = ResultsPointer.Rolls.OrderBy(t => t).Take(ResultsPointer.Rolls.Count - numToDrop).ToList();
+                IEnumerable<int> consideredRolls = ResultsPointer.PlaceholderRollBucket.OrderByDescending(t => t).Take(ResultsPointer.PlaceholderRollBucket.Count - numToDrop);
+                ResultsPointer.Rolls.AddRange(consideredRolls);
+                ResultsPointer.PlaceholderRollBucket.RemoveRange(consideredRolls);
             };
             Action<string> multiplier = (workingString) => 
             { 

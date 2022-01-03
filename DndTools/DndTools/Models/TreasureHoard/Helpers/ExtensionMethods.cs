@@ -75,5 +75,18 @@ namespace DndTools.Models.TreasureHoard.Helpers
             }
             return copy;
         }
+
+        /// <summary>
+        /// Removes elements with the equivalent value(s) from the collection.
+        /// </summary>
+        /// <param name="collection">The collection to modify</param>
+        /// <param name="range">The elements to remove</param>
+        public static void RemoveRange(this List<int> collection, IEnumerable<int> range)
+        {
+            foreach (var i in range)
+            {
+                collection.Remove(i);
+            }
+        }
     }
 }

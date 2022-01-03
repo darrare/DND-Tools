@@ -14,7 +14,7 @@ namespace DndTools.Models.TreasureHoard
 
         public Electrum(string advancedDiceFormat)
         {
-            Value = DiceRoller.RollForSum(advancedDiceFormat);
+            Value = DiceRoller.Roll(advancedDiceFormat).Value;
         }
     }
 }
