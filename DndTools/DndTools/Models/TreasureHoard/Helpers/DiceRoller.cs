@@ -5,17 +5,36 @@ using System.Text.RegularExpressions;
 
 namespace DndTools.Models.TreasureHoard.Helpers
 {
+    /// <summary>
+    /// Static dice rolling class to allow advanced dice notation into logical dice rolls.
+    /// </summary>
     public static class DiceRoller
     {
+        /// <summary>
+        /// Pointer to the results object so that the automata actions
+        /// have some data to use when making decisions.
+        /// </summary>
         private static RollResults ResultsPointer { get; set; }
 
+        /// <summary>
+        /// Automaton used for determining and performing logical operations
+        /// on the advanced dice notation string.
+        /// </summary>
         private static DeterministicFiniteAutomaton Automaton { get; set; }
 
+        /// <summary>
+        /// Static constructor
+        /// </summary>
         static DiceRoller()
         {
-            InitializeAutomiton();
+            InitializeAutomaton();
         }
 
+        /// <summary>
+        /// Generates roll results using the advanced dice notation string
+        /// </summary>
+        /// <param name="advancedDiceNotation">Determines how to roll</param>
+        /// <returns>Results of the roll</returns>
         public static RollResults Roll(string advancedDiceNotation)
         {
             RollResults results = new RollResults();
@@ -27,10 +46,14 @@ namespace DndTools.Models.TreasureHoard.Helpers
                 throw new Exception($"Failure on rolling dice with notation {advancedDiceNotation}");
         }
 
-        private static void InitializeAutomiton()
+        /// <summary>
+        /// Initialize the automaton to know how to handle advanced dice notation
+        /// </summary>
+        private static void InitializeAutomaton()
         {
             int nodeCount = 18;
 
+            // Create the actions used while running the automaton to record the string information.
             Action<string> rollDice = (workingString) =>
             {
                 int numDice = workingString.StripLeadingInteger();
@@ -107,6 +130,7 @@ namespace DndTools.Models.TreasureHoard.Helpers
                 }
             };
 
+            // All edge connections with instructions on what to do pre-transition.
             List<Tuple<int, int, string, Action<string>>> edgeConnections = new List<Tuple<int, int, string, Action<string>>>()
             {
                 // xdy
@@ -158,6 +182,7 @@ namespace DndTools.Models.TreasureHoard.Helpers
                 new Tuple<int, int, string, Action<string>>(17, 17, "[0-9]", null),
             };
 
+            // Accepting states with actions to perform on accept
             List<Tuple<int, Action<string>>> acceptStates = new List<Tuple<int, Action<string>>>()
             {
                 new Tuple<int, Action<string>>(3, rollDice),
@@ -169,6 +194,7 @@ namespace DndTools.Models.TreasureHoard.Helpers
                 new Tuple<int, Action<string>>(17, addition),
             };
 
+            // Create the automaton
             Automaton = new DeterministicFiniteAutomaton(nodeCount, edgeConnections, acceptStates);
         }
     }
