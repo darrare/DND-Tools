@@ -8,11 +8,38 @@
         <h1>@ViewData["Title"]</h1>
         <div class="row">
             <div class="col-7">
-                <label for="AdvancedDiceNotation">Dice Notation: </label>
-                <input type="text" name="AdvancedDiceNotation" value="4d6kh3" />
+                <label for="AdvancedDiceNotation1">Dice Notation: </label>
+                <input type="text" name="AdvancedDiceNotation1" value="4d6kh3" />
             </div>
             <div class="col-5">
-                <button type="button" onclick="rollDice()">Roll!</button>
+                <button type="button" onclick="rollDice(1)">Roll!</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-7">
+                <label for="AdvancedDiceNotation2">Dice Notation: </label>
+                <input type="text" name="AdvancedDiceNotation2" value="4d6dl1" />
+            </div>
+            <div class="col-5">
+                <button type="button" onclick="rollDice(2)">Roll!</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-7">
+                <label for="AdvancedDiceNotation3">Dice Notation: </label>
+                <input type="text" name="AdvancedDiceNotation3" value="10d10kh1kl1" />
+            </div>
+            <div class="col-5">
+                <button type="button" onclick="rollDice(3)">Roll!</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-7">
+                <label for="AdvancedDiceNotation4">Dice Notation: </label>
+                <input type="text" name="AdvancedDiceNotation4" value="1d12*2+3" />
+            </div>
+            <div class="col-5">
+                <button type="button" onclick="rollDice(4)">Roll!</button>
             </div>
         </div>
     </div>

@@ -61,6 +61,8 @@ namespace DndTools.Models.DiceRoller.Helpers
         /// <returns>True if success, False if failure</returns>
         public bool RunString(string input)
         {
+            input = input.Trim();
+
             WorkingString = "";
 
             DfaNode curNode = Nodes[0];

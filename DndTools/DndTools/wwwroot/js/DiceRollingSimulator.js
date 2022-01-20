@@ -1,9 +1,9 @@
-﻿function rollDice() {
+﻿function rollDice(number) {
     $("#error").text("");
     $("#results").html("");
 
     $.post("/DiceRollingSimulator/RollDice",
-        { advancedDiceNotation: $("input[name=AdvancedDiceNotation]").val() },
+        { advancedDiceNotation: $("input[name=AdvancedDiceNotation" + number + "]").val() },
         function (result) {
             if (result.error) {
                 $("#error").text(result.error);

@@ -44,10 +44,18 @@ namespace DndTools.Models.DiceRoller
             RollResults results = new RollResults();
             ResultsPointer = results;
 
-            if (Automaton.RunString(advancedDiceNotation))
-                return results;
-            else
-                throw new Exception($"Failure on rolling dice with notation {advancedDiceNotation}");
+            try
+            {
+                if (Automaton.RunString(advancedDiceNotation))
+                    return results;
+                else
+                    throw new Exception($"Failure on rolling dice with notation {advancedDiceNotation}");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
         }
 
         /// <summary>
