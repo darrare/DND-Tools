@@ -6,27 +6,31 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using DndTools.Models.DiceRoller;
+using DndTools.Models.DiceRoller.Helpers;
 
 namespace DndTools.Controllers
 {
-    public class HomeController : Controller
+    public class DiceRollingSimulatorController : Controller
     {
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public DiceRollingSimulatorController(ILogger<HomeController> logger)
         {
             _logger = logger;
         }
 
-        public IActionResult Index()
+        [HttpPost]
+        public IActionResult RollDice(string advancedDiceNotation)
         {
-            return View();
-        }
-
-
-        public IActionResult DiceRollingSimulator()
-        {
-            return View();
+            try
+            {
+                return new JsonResult(DiceRoller.Roll(advancedDiceNotation));
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new { error = ex.Message });
+            }
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

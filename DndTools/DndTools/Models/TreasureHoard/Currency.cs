@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DndTools.Models.TreasureHoard.Helpers;
+using DndTools.Models.DiceRoller;
 using Newtonsoft.Json;
+using DndTools.Models.TreasureHoard.Helpers;
 using DndTools.Models.TreasureHoard.JsonClasses;
 
 namespace DndTools.Models.TreasureHoard
@@ -17,7 +18,7 @@ namespace DndTools.Models.TreasureHoard
             if (challengeRating < 0)
                 throw new Exception($"Challenge rating of {challengeRating} out of range.");
 
-            int diceRoll = DiceRoller.Roll("1d100").Value;
+            int diceRoll = DiceRoller.DiceRoller.Roll("1d100").Value;
 
             CurrencyRollingGuide jsonData = 
                 JsonConvert.DeserializeObject<CurrencyRollingGuide>(calculateRollingGuideJson);

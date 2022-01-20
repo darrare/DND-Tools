@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DndTools.Models.TreasureHoard.Helpers
+namespace DndTools.Models.DiceRoller
 {
     /// <summary>
     /// Holder for the results of a roll.
@@ -22,7 +22,7 @@ namespace DndTools.Models.TreasureHoard.Helpers
         /// Custom query to pull only the dice that aren't
         /// excluded due to any selective rules.
         /// </summary>
-        public List<int> ValidRolls 
+        public List<int> KeptRolls 
         { 
             get 
             { 
@@ -30,6 +30,20 @@ namespace DndTools.Models.TreasureHoard.Helpers
                     .Where(t => !t.HasBeenRemoved.HasValue || !t.HasBeenRemoved.Value)
                     .Select(t => t.Value).ToList(); 
             } 
+        }
+
+        /// <summary>
+        /// Custom query to pull only the dice that are
+        /// excluded due to any selective rules.
+        /// </summary>
+        public List<int> DiscardedRolls
+        {
+            get
+            {
+                return Results
+                    .Where(t => t.HasBeenRemoved.HasValue && t.HasBeenRemoved.Value)
+                    .Select(t => t.Value).ToList();
+            }
         }
 
         /// <summary>
@@ -45,7 +59,7 @@ namespace DndTools.Models.TreasureHoard.Helpers
         /// <summary>
         /// The total value of the dice, with modifiers included.
         /// </summary>
-        public int Value { get { return (int)((float)ValidRolls.Sum() * Multiplier + Addition); } }
+        public int Value { get { return (int)((float)KeptRolls.Sum() * Multiplier + Addition); } }
     }
 
     /// <summary>

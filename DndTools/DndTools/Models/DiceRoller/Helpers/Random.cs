@@ -1,4 +1,4 @@
-﻿namespace DndTools.Models.TreasureHoard.Helpers
+﻿namespace DndTools.Models.DiceRoller.Helpers
 {
     public static class Random
     {

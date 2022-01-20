@@ -62,65 +62,65 @@ namespace UnitTesting
         [TestMethod]
         public void Test_xdy()
         {
-            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20").ValidRolls, new List<int>() { 20, 20, 19, 17, 16, 15, 13, 12, 12, 10, 10, 9, 6, 6, 5 });
+            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20").KeptRolls, new List<int>() { 20, 20, 19, 17, 16, 15, 13, 12, 12, 10, 10, 9, 6, 6, 5 });
         }
 
         [TestMethod]
         public void Test_SelectiveHighLow()
         {
             // Keeps
-            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20kh5").ValidRolls, new List<int>() { 20, 20, 19, 17, 16 });
-            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20kl5").ValidRolls, new List<int>() { 10, 9, 6, 6, 5 });
+            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20kh5").KeptRolls, new List<int>() { 20, 20, 19, 17, 16 });
+            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20kl5").KeptRolls, new List<int>() { 10, 9, 6, 6, 5 });
 
             //Drops
-            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20dh5").ValidRolls, new List<int>() { 15, 13, 12, 12, 10, 10, 9, 6, 6, 5 });
-            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20dl5").ValidRolls, new List<int>() { 20, 20, 19, 17, 16, 15, 13, 12, 12, 10 });
+            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20dh5").KeptRolls, new List<int>() { 15, 13, 12, 12, 10, 10, 9, 6, 6, 5 });
+            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20dl5").KeptRolls, new List<int>() { 20, 20, 19, 17, 16, 15, 13, 12, 12, 10 });
         }
 
         [TestMethod]
         public void Test_SelectiveHighLow_OutOfBounds()
         {
             // Keeps
-            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20kh50").ValidRolls, new List<int>() { 20, 20, 19, 17, 16, 15, 13, 12, 12, 10, 10, 9, 6, 6, 5 });
-            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20kl50").ValidRolls, new List<int>() { 20, 20, 19, 17, 16, 15, 13, 12, 12, 10, 10, 9, 6, 6, 5 });
+            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20kh50").KeptRolls, new List<int>() { 20, 20, 19, 17, 16, 15, 13, 12, 12, 10, 10, 9, 6, 6, 5 });
+            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20kl50").KeptRolls, new List<int>() { 20, 20, 19, 17, 16, 15, 13, 12, 12, 10, 10, 9, 6, 6, 5 });
 
             // Drops
-            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20dh50").ValidRolls, new List<int>() { });
-            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20dl50").ValidRolls, new List<int>() { });
+            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20dh50").KeptRolls, new List<int>() { });
+            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20dl50").KeptRolls, new List<int>() { });
         }
 
         [TestMethod]
         public void Test_DropLowAndHigh()
         {
-            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20dl5dh5").ValidRolls, new List<int>() { 15, 13, 12, 12, 10 });
-            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20dh5dl5").ValidRolls, new List<int>() { 15, 13, 12, 12, 10 });
+            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20dl5dh5").KeptRolls, new List<int>() { 15, 13, 12, 12, 10 });
+            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20dh5dl5").KeptRolls, new List<int>() { 15, 13, 12, 12, 10 });
         }
 
         [TestMethod]
         public void Test_KeepLowAndHigh()
         {
-            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20kl5kh5").ValidRolls, new List<int>() { 20, 20, 19, 17, 16, 10, 9, 6, 6, 5 });
-            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20kh5kl5").ValidRolls, new List<int>() { 20, 20, 19, 17, 16, 10, 9, 6, 6, 5 });
+            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20kl5kh5").KeptRolls, new List<int>() { 20, 20, 19, 17, 16, 10, 9, 6, 6, 5 });
+            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20kh5kl5").KeptRolls, new List<int>() { 20, 20, 19, 17, 16, 10, 9, 6, 6, 5 });
         }
 
         [TestMethod]
         public void Test_DropLowAndHigh_OutOfBounds()
         {
-            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20dl1dh20").ValidRolls, new List<int>() { });
-            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20dh1dl20").ValidRolls, new List<int>() { });
+            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20dl1dh20").KeptRolls, new List<int>() { });
+            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20dh1dl20").KeptRolls, new List<int>() { });
 
-            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20dl20dh1").ValidRolls, new List<int>() { });
-            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20dh20dl1").ValidRolls, new List<int>() { });
+            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20dl20dh1").KeptRolls, new List<int>() { });
+            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20dh20dl1").KeptRolls, new List<int>() { });
         }
 
         [TestMethod]
         public void Test_KeepLowAndHigh_OutOfBounds()
         {
-            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20kl1kh20").ValidRolls, new List<int>() { 20, 20, 19, 17, 16, 15, 13, 12, 12, 10, 10, 9, 6, 6, 5 });
-            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20kh1kl20").ValidRolls, new List<int>() { 20, 20, 19, 17, 16, 15, 13, 12, 12, 10, 10, 9, 6, 6, 5 });
+            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20kl1kh20").KeptRolls, new List<int>() { 20, 20, 19, 17, 16, 15, 13, 12, 12, 10, 10, 9, 6, 6, 5 });
+            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20kh1kl20").KeptRolls, new List<int>() { 20, 20, 19, 17, 16, 15, 13, 12, 12, 10, 10, 9, 6, 6, 5 });
 
-            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20kl20kh1").ValidRolls, new List<int>() { 20, 20, 19, 17, 16, 15, 13, 12, 12, 10, 10, 9, 6, 6, 5 });
-            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20kh20kl1").ValidRolls, new List<int>() { 20, 20, 19, 17, 16, 15, 13, 12, 12, 10, 10, 9, 6, 6, 5 });
+            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20kl20kh1").KeptRolls, new List<int>() { 20, 20, 19, 17, 16, 15, 13, 12, 12, 10, 10, 9, 6, 6, 5 });
+            Random.SetSeed(0); CollectionAssert.AreEquivalent(DiceRoller.Roll("15d20kh20kl1").KeptRolls, new List<int>() { 20, 20, 19, 17, 16, 15, 13, 12, 12, 10, 10, 9, 6, 6, 5 });
         }
 
         [TestMethod]

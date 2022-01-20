@@ -14,7 +14,7 @@ namespace DndTools.Models.TreasureHoard
 
         public Silver(string advancedDiceFormat)
         {
-            Value = DiceRoller.Roll(advancedDiceFormat).Value;
+            Value = DiceRoller.DiceRoller.Roll(advancedDiceFormat).Value;
         }
     }
 }

@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using DndTools.Models.DiceRoller.Helpers;
+using Random = DndTools.Models.DiceRoller.Helpers.Random;
 
-namespace DndTools.Models.TreasureHoard.Helpers
+namespace DndTools.Models.DiceRoller
 {
     /// <summary>
     /// Static dice rolling class to allow advanced dice notation into logical dice rolls.
@@ -37,6 +39,8 @@ namespace DndTools.Models.TreasureHoard.Helpers
         /// <returns>Results of the roll</returns>
         public static RollResults Roll(string advancedDiceNotation)
         {
+            if (string.IsNullOrEmpty(advancedDiceNotation))
+                throw new Exception($"Notation is null or empty.");
             RollResults results = new RollResults();
             ResultsPointer = results;
 

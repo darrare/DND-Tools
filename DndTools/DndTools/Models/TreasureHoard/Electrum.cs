@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DndTools.Models.DiceRoller;
 using DndTools.Models.TreasureHoard.Helpers;
 
 namespace DndTools.Models.TreasureHoard
@@ -14,7 +15,7 @@ namespace DndTools.Models.TreasureHoard
 
         public Electrum(string advancedDiceFormat)
         {
-            Value = DiceRoller.Roll(advancedDiceFormat).Value;
+            Value = DiceRoller.DiceRoller.Roll(advancedDiceFormat).Value;
         }
     }
 }

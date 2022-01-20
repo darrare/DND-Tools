@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DndTools.Models.TreasureHoard.Helpers;
+using DndTools.Models.DiceRoller;
 
 namespace DndTools.Models.TreasureHoard
 {
@@ -14,7 +15,7 @@ namespace DndTools.Models.TreasureHoard
 
         public Gold(string advancedDiceFormat)
         {
-            Value = DiceRoller.Roll(advancedDiceFormat).Value;
+            Value = DiceRoller.DiceRoller.Roll(advancedDiceFormat).Value;
         }
     }
 }

@@ -4,8 +4,12 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace DndTools.Models.TreasureHoard.Helpers
+namespace DndTools.Models.DiceRoller.Helpers
 {
+    /// <summary>
+    /// THIS IS THE OLD VERSION, I'M KEEPING IT BECAUSE IT'S COOL.
+    /// </summary>
+    [Obsolete]
     public static class DiceRoller_ver2
     {
         /// <summary>

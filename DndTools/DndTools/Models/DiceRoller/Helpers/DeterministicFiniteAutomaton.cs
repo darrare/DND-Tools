@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace DndTools.Models.TreasureHoard.Helpers
+namespace DndTools.Models.DiceRoller.Helpers
 {
     /// <summary>
     /// This Deterministic Finite Automaton is designed to handle string 
