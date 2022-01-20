@@ -10,6 +10,8 @@ namespace DndTools.Models.TreasureHoard
     {
         public int Value { get; set; }
 
+        public CurrencyTypeEnum Type { get => CurrencyTypeEnum.Silver; }
+
         public float ConvertToGpValue() => (float)Value / 10f;
 
         public Silver(string advancedDiceFormat)

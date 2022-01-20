@@ -24,10 +24,21 @@ a {
   border-color: #1861ac;
 }
 
+
+/* Custom
+-------------------------------------------------- */
+
+.jsonTextArea {
+    width: 100%;
+    font-family: 'Courier New';
+    font-size: small;
+}
+
+
 /* Sticky footer styles
 -------------------------------------------------- */
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 @media (min-width: 768px) {
   html {

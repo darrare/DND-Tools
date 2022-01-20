@@ -6,6 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\js\TreasureHoardGenerator.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\js\TreasureHoardGenerator.js" />
     <None Include="wwwroot\js\DiceRollingSimulator.js" />
   </ItemGroup>
 

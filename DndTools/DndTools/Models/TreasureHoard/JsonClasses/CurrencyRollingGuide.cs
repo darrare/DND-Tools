@@ -67,8 +67,30 @@ namespace DndTools.Models.TreasureHoard.JsonClasses
             } 
         }
 
-
         [JsonPropertyName("rollFormat")]
         public string RollFormat { get; set; }
+
+        /// <summary>
+        /// Generates the currency represented by this object.
+        /// </summary>
+        /// <returns>The currency represented by this object</returns>
+        public ICurrency GenerateCurrency()
+        {
+            switch (CurrencyTypeEnum)
+            {
+                case CurrencyTypeEnum.Copper:
+                    return new Copper(RollFormat);
+                case CurrencyTypeEnum.Silver:
+                    return new Silver(RollFormat);
+                case CurrencyTypeEnum.Electrum:
+                    return new Electrum(RollFormat);
+                case CurrencyTypeEnum.Gold:
+                    return new Gold(RollFormat);
+                case CurrencyTypeEnum.Platinum:
+                    return new Platinum(RollFormat);
+                default:
+                    throw new Exception($"Error generating currency of type {CurrencyType} and roll format {RollFormat}");
+            }
+        }
     }
 }

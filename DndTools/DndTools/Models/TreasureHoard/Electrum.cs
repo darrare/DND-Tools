@@ -11,6 +11,7 @@ namespace DndTools.Models.TreasureHoard
     {
         public int Value { get; set; }
 
+        public CurrencyTypeEnum Type { get => CurrencyTypeEnum.Electrum; }
         public float ConvertToGpValue() => (float)Value / 2f;
 
         public Electrum(string advancedDiceFormat)
