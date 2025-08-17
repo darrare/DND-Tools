@@ -3,7 +3,7 @@
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "grey";
+    ctx.fillStyle = "rgba(176,176,176,1)";
     ctx.fillRect(0, 0, width, height);
 };
 
@@ -23,9 +23,6 @@ window.startPlayerHubConnection = async () => {
 
     // Draw chunks sent from DM
     window.mapHubConnection.on("ReceiveFogUpdate", (base64Chunk, x, y, width, height) => {
-        const canvas = document.getElementById("playerCanvas");
-        const ctx = canvas.getContext("2d");
-
         const img = new Image();
         img.onload = () => {
             // Draw to temporary canvas
@@ -39,21 +36,11 @@ window.startPlayerHubConnection = async () => {
             const imgData = tempCtx.getImageData(0, 0, temp.width, temp.height);
             const data = imgData.data;
 
-            for (let i = 0; i < data.length; i += 4) {
-                if (data[i + 3] > 0) { // any visible pixel
-                    data[i] = 128;     // R
-                    data[i + 1] = 128; // G
-                    data[i + 2] = 128; // B
-                    data[i + 3] = 255; // alpha = fully opaque
-                }
-            }
-
             // Draw processed image data to player canvas
             ctx.putImageData(imgData, x, y);
         };
         img.src = base64Chunk;
     });
-
 
     // Request full fog on first connection
     await window.mapHubConnection.invoke("RequestFullFog");

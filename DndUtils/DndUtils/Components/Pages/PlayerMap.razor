@@ -2,30 +2,21 @@
 @rendermode InteractiveServer
 @inject IJSRuntime JS
 
-<div style="position: relative; display: inline-block;">
-    <img id="mapImage" src="@MapUrl"
-         style="display:block; max-width:100%; height:auto; border:1px solid black;"
-         @ref="MapImgRef"
-         @onload="ImageLoaded" />
-
-    <canvas id="playerCanvas"
-            style="position:absolute; top:0; left:0; pointer-events:none;">
-    </canvas>
-</div>
+<canvas id="playerCanvas" style="display:block; max-width:100%; height:auto; border:1px solid black; pointer-events:none;">
+</canvas>
 
 @code {
     [Parameter] public string mapFile { get; set; }
-    private string MapUrl => $"/uploads/{mapFile}";
-    private ElementReference MapImgRef;
     private int MapWidth;
     private int MapHeight;
 
-    private async Task ImageLoaded()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        var dimensions = await JS.InvokeAsync<int[]>("getImageNaturalSize", MapImgRef);
-        MapWidth = dimensions[0];
-        MapHeight = dimensions[1];
+        if (!firstRender) return;
 
+        // Initialize canvas size arbitrarily; will be set correctly by DM update
+        MapWidth = 1024;
+        MapHeight = 768;
         await JS.InvokeVoidAsync("initializePlayerFog", MapWidth, MapHeight);
         await JS.InvokeVoidAsync("startPlayerHubConnection");
     }

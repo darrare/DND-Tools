@@ -32,21 +32,33 @@ window.paintFog = async (canvas, x, y, radius, erase) => {
     const endY = Math.min(height, Math.ceil(y + radius));
 
     const imgData = ctx.getImageData(startX, startY, endX - startX, endY - startY);
-    const data = imgData.data;
+    const playerImageData = ctx.getImageData(startX, startY, endX - startX, endY - startY);
 
+    // Only change color of the outer ring to make it circular
     for (let j = 0; j < imgData.height; j++) {
         for (let i = 0; i < imgData.width; i++) {
             const dx = (startX + i) - x;
             const dy = (startY + j) - y;
+            const index = (j * imgData.width + i) * 4;
             if (dx * dx + dy * dy <= radius * radius) {
-                const index = (j * imgData.width + i) * 4;
-                if (erase) data[index + 3] = 0;
-                else {
-                    data[index] = 0;
-                    data[index + 1] = 0;
-                    data[index + 2] = 0;
-                    data[index + 3] = 178;
+                if (erase) {
+                    imgData.data[index + 3] = 0;
                 }
+                else {
+                    imgData.data[index] = 0;
+                    imgData.data[index + 1] = 0;
+                    imgData.data[index + 2] = 0;
+                    imgData.data[index + 3] = 178;
+                }
+            }
+            // Update playerdata so we send something slightly different to the player.
+            if (imgData.data[index + 3] == 0) {
+                playerImageData.data[index + 3] = 0;
+            } else {
+                playerImageData.data[index] = 176;
+                playerImageData.data[index + 1] = 176;
+                playerImageData.data[index + 2] = 176;
+                playerImageData.data[index + 3] = 255;
             }
         }
     }
@@ -54,10 +66,25 @@ window.paintFog = async (canvas, x, y, radius, erase) => {
     ctx.putImageData(imgData, startX, startY);
 
     if (window.mapHubConnection) {
+        // Instead of sending only fog alpha, draw the map + fog onto a temp canvas
         const tempCanvas = document.createElement("canvas");
         tempCanvas.width = endX - startX;
         tempCanvas.height = endY - startY;
-        tempCanvas.getContext("2d").putImageData(imgData, 0, 0);
+        const tempCtx = tempCanvas.getContext("2d");
+
+        // Draw map portion
+        const mapImg = document.getElementById("mapImage");
+        tempCtx.drawImage(mapImg, startX, startY, endX - startX, endY - startY, 0, 0, endX - startX, endY - startY);
+
+        // Draw fog portion from playerData with alpha
+        const fogCanvas = document.createElement("canvas");
+        fogCanvas.width = playerImageData.width;
+        fogCanvas.height = playerImageData.height;
+        fogCanvas.getContext("2d").putImageData(playerImageData, 0, 0);
+
+        // Draw fog on top of map
+        tempCtx.drawImage(fogCanvas, 0, 0);
+
         const base64Chunk = tempCanvas.toDataURL("image/png");
         await window.mapHubConnection.invoke("UpdateFog", base64Chunk, startX, startY, endX - startX, endY - startY);
     }
