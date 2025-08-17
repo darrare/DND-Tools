@@ -1,0 +1,65 @@
+﻿@{
+    ViewData["Title"] = "Dice Rolling Simulator";
+}
+
+
+<div class="row">
+    <div class="col-6">
+        <h1>@ViewData["Title"]</h1>
+        <div class="row">
+            <div class="col-7">
+                <label for="AdvancedDiceNotation1">Dice Notation: </label>
+                <input type="text" name="AdvancedDiceNotation1" value="4d6kh3" />
+            </div>
+            <div class="col-5">
+                <button type="button" onclick="rollDice(1)">Roll!</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-7">
+                <label for="AdvancedDiceNotation2">Dice Notation: </label>
+                <input type="text" name="AdvancedDiceNotation2" value="4d6dl1" />
+            </div>
+            <div class="col-5">
+                <button type="button" onclick="rollDice(2)">Roll!</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-7">
+                <label for="AdvancedDiceNotation3">Dice Notation: </label>
+                <input type="text" name="AdvancedDiceNotation3" value="10d10kh1kl1" />
+            </div>
+            <div class="col-5">
+                <button type="button" onclick="rollDice(3)">Roll!</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-7">
+                <label for="AdvancedDiceNotation4">Dice Notation: </label>
+                <input type="text" name="AdvancedDiceNotation4" value="1d12*2+3" />
+            </div>
+            <div class="col-5">
+                <button type="button" onclick="rollDice(4)">Roll!</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-6">
+        <h3>Examples</h3>
+        <p>4d6kh3 - Four D6 Keep Highest 3 (rolling stats)</p>
+        <p>4d6dl1 - Four D6 Drop Lowest 1 (rolling stats)</p>
+        <p>10d10kh1kl1 - Ten D10 Keep highest and lowest</p>
+        <p>1d12*2+3 - Character weilding a greataxe with a +3 str on a crit attack roll</p>
+    </div>
+</div>
+<hr />
+
+<div class="row">
+    <div class="col-12">
+        <p id="error" class="alert-danger"></p>
+        <div id="results" class="row">
+
+        </div>
+    </div>
+</div>
+
+<script src="~/js/DiceRollingSimulator.js"></script>

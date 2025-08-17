@@ -1,0 +1,119 @@
+﻿@page "/dm"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Forms
+@inject IWebHostEnvironment Env
+@inject IJSRuntime JS
+
+<h3>DM Map Upload & Fog of War</h3>
+
+<InputFile OnChange="HandleFileSelected" accept="image/*" />
+<button class="btn btn-primary mt-2" @onclick="UploadFile" disabled="@(_selectedFile == null)">
+    Upload
+</button>
+
+@if (!string.IsNullOrEmpty(MapUrl))
+{
+    <div class="mt-3">
+        <div class="mb-2">
+            <label>Brush Size: @BrushSize px</label>
+            <input type="range" min="5" max="100" step="1" @bind="BrushSize" />
+
+            <label class="ms-3">
+                <input type="checkbox" @bind="IsErasing" />
+                Erase (Reveal Map)
+            </label>
+        </div>
+
+        <div style="position: relative; display: inline-block;">
+            <img id="mapImage" src="@MapUrl"
+                 style="display:block; max-width:100%; height:auto; border:1px solid black;"
+                 @ref="MapImgRef"
+                 @onload="ImageLoaded" />
+
+            <canvas id="fogCanvas"
+                    style="position:absolute; top:0; left:0; cursor:crosshair;"
+                    @onpointerdown="StartDrawing"
+                    @onpointermove="Draw"
+                    @onpointerup="StopDrawing"
+                    @onpointerleave="StopDrawing"
+                    @ref="CanvasRef">
+            </canvas>
+
+        </div>
+    </div>
+}
+
+@code {
+    private IBrowserFile _selectedFile;
+    private string MapUrl;
+    private ElementReference CanvasRef;
+    private ElementReference MapImgRef;
+    private bool _isDrawing = false;
+    private int MapWidth = 0;
+    private int MapHeight = 0;
+    private bool _jsInitialized = false;
+
+    private int BrushSize { get; set; } = 30;
+    private bool IsErasing { get; set; } = true; // true = erase/reveal, false = add fog
+
+    private void HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        _selectedFile = e.File;
+        StateHasChanged();
+    }
+
+    private async Task UploadFile()
+    {
+        if (_selectedFile == null)
+            return;
+
+        var uploads = Path.Combine(Env.WebRootPath, "uploads");
+        if (!Directory.Exists(uploads))
+            Directory.CreateDirectory(uploads);
+
+        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(_selectedFile.Name)}";
+        var filePath = Path.Combine(uploads, fileName);
+
+        await using var stream = File.Create(filePath);
+        await _selectedFile.OpenReadStream().CopyToAsync(stream);
+
+        MapUrl = $"/uploads/{fileName}";
+        _selectedFile = null;
+
+        StateHasChanged(); // image will call ImageLoaded
+    }
+
+    private async Task ImageLoaded()
+    {
+        if (MapImgRef.Context != null)
+        {
+            var dimensions = await JS.InvokeAsync<int[]>("getImageNaturalSize", MapImgRef);
+            MapWidth = dimensions[0];
+            MapHeight = dimensions[1];
+
+            // Initialize fog immediately after the canvas exists
+            await JS.InvokeVoidAsync("initializeFog", CanvasRef, MapWidth, MapHeight);
+
+            _jsInitialized = true;
+            StateHasChanged();
+        }
+    }
+
+    private void StartDrawing(PointerEventArgs e)
+    {
+        _isDrawing = true;
+        Draw(e);
+    }
+
+    private void StopDrawing(PointerEventArgs e)
+    {
+        _isDrawing = false;
+    }
+
+    private async void Draw(PointerEventArgs e)
+    {
+        if (!_isDrawing || !_jsInitialized) return;
+
+        await JS.InvokeVoidAsync("paintFog", CanvasRef, e.OffsetX, e.OffsetY, BrushSize, IsErasing);
+    }
+}
