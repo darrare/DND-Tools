@@ -3,20 +3,26 @@
 window.initializeFog = (canvas, width, height) => {
     canvas.width = width;
     canvas.height = height;
-
     const ctx = canvas.getContext("2d");
     canvas._ctx = ctx;
 
-    // Fill canvas with semi-transparent black
-    ctx.fillStyle = "rgba(0,0,0,0.7)";
-    ctx.fillRect(0, 0, width, height);
+    const offscreen = document.createElement("canvas");
+    offscreen.width = width;
+    offscreen.height = height;
+    const offCtx = offscreen.getContext("2d");
+
+    offCtx.fillStyle = "rgba(0,0,0,0.7)";
+    offCtx.fillRect(0, 0, width, height);
+
+    canvas._offscreen = offscreen;
+    canvas._offCtx = offCtx;
+
+    ctx.clearRect(0, 0, width, height);
+    ctx.drawImage(offscreen, 0, 0);
 };
 
-// DM paints on canvas and sends updates to players
-window.paintFog = (canvas, x, y, radius, erase) => {
+window.paintFog = async (canvas, x, y, radius, erase) => {
     const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
     const width = canvas.width;
     const height = canvas.height;
 
@@ -32,52 +38,65 @@ window.paintFog = (canvas, x, y, radius, erase) => {
         for (let i = 0; i < imgData.width; i++) {
             const dx = (startX + i) - x;
             const dy = (startY + j) - y;
-
             if (dx * dx + dy * dy <= radius * radius) {
                 const index = (j * imgData.width + i) * 4;
-
-                if (erase) data[index + 3] = 0; // reveal
-                else data[index + 3] = 178;    // 0.7 alpha
+                if (erase) data[index + 3] = 0;
+                else {
+                    data[index] = 0;
+                    data[index + 1] = 0;
+                    data[index + 2] = 0;
+                    data[index + 3] = 178;
+                }
             }
         }
     }
 
     ctx.putImageData(imgData, startX, startY);
 
-    // Send update via SignalR
     if (window.mapHubConnection) {
         const tempCanvas = document.createElement("canvas");
         tempCanvas.width = endX - startX;
         tempCanvas.height = endY - startY;
         tempCanvas.getContext("2d").putImageData(imgData, 0, 0);
         const base64Chunk = tempCanvas.toDataURL("image/png");
-
-        window.mapHubConnection.invoke("UpdateFog", base64Chunk, startX, startY, endX - startX, endY - startY);
+        await window.mapHubConnection.invoke("UpdateFog", base64Chunk, startX, startY, endX - startX, endY - startY);
     }
 };
 
-// Connect to SignalR hub
+// Store current fog for new players
+window.storeFullFog = () => {
+    const canvas = document.getElementById("fogCanvas");
+    window._dmFullFog = canvas.toDataURL("image/png");
+};
+
+// Send full fog to all current players
+window.sendFullFogToPlayer = async () => {
+    if (!window.mapHubConnection) return;
+    const canvas = document.getElementById("fogCanvas");
+    const base64 = window._dmFullFog ?? canvas.toDataURL("image/png");
+    await window.mapHubConnection.invoke("UpdateFog", base64, 0, 0, canvas.width, canvas.height);
+};
+
+// Send full fog to a new player on request
+window.sendFullFogToNewPlayer = async (connectionId) => {
+    if (!window.mapHubConnection || !window._dmFullFog) return;
+    const canvas = document.getElementById("fogCanvas");
+    await window.mapHubConnection.invoke("UpdateFog", window._dmFullFog, 0, 0, canvas.width, canvas.height);
+};
+
+// Start DM hub connection
 window.startMapHubConnection = async () => {
+    if (window.mapHubConnection) return;
+
     window.mapHubConnection = new signalR.HubConnectionBuilder()
         .withUrl("/mapHub")
         .withAutomaticReconnect()
         .build();
 
-    await window.mapHubConnection.start();
-
-    // Listen for fog updates (players only)
-    window.mapHubConnection.on("ReceiveFogUpdate", (base64Chunk, x, y, width, height) => {
-        const img = new Image();
-        img.onload = () => {
-            const ctx = document.getElementById("playerCanvas").getContext("2d");
-            ctx.drawImage(img, x, y);
-        };
-        img.src = base64Chunk;
+    window.mapHubConnection.on("SendFullFogToPlayer", async (connectionId) => {
+        await window.sendFullFogToNewPlayer(connectionId);
     });
-};
 
-// Optional: Save DM fog layer as PNG
-window.saveFogLayer = (canvas) => {
-    const dataURL = canvas.toDataURL("image/png");
-    console.log("Fog saved as PNG", dataURL); // You can send to server
+    await window.mapHubConnection.start();
+    console.log("DM Hub connected");
 };

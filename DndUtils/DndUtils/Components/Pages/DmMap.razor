@@ -3,16 +3,13 @@
 @using Microsoft.AspNetCore.Components.Forms
 @inject IWebHostEnvironment Env
 @inject IJSRuntime JS
-@inject NavigationManager Nav
+@inject NavigationManager NavigationManager
 
 <h3>DM Map Upload & Fog of War</h3>
 
 <InputFile OnChange="HandleFileSelected" accept="image/*" />
 <button class="btn btn-primary mt-2" @onclick="UploadFile" disabled="@(_selectedFile == null)">
     Upload
-</button>
-<button class="btn btn-success mt-2 ms-2" @onclick="CompleteMap" disabled="@(!_jsInitialized)">
-    Complete
 </button>
 
 @if (!string.IsNullOrEmpty(MapUrl))
@@ -26,11 +23,15 @@
                 <input type="checkbox" @bind="IsErasing" />
                 Erase (Reveal Map)
             </label>
+
+            <button class="btn btn-success ms-3" @onclick="SendFullFogToPlayers" disabled="!_jsInitialized">
+                Send Full Fog
+            </button>
         </div>
 
         <div class="mt-2">
-            <label>Player Link:</label>
-            <input class="form-control" readonly value="@PlayerLink" />
+            <label>Player URL:</label>
+            <input class="form-control" readonly value="@PlayerUrl" />
         </div>
 
         <div style="position: relative; display: inline-block;">
@@ -64,9 +65,11 @@
     private int BrushSize { get; set; } = 30;
     private bool IsErasing { get; set; } = true;
 
-    private string PlayerLink { get; set; }
+    private string PlayerUrl => string.IsNullOrEmpty(MapUrl)
+        ? ""
+        : NavigationManager.BaseUri + $"player/{Path.GetFileName(MapUrl)}";
 
-    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    private void HandleFileSelected(InputFileChangeEventArgs e)
     {
         _selectedFile = e.File;
         StateHasChanged();
@@ -93,20 +96,15 @@
 
     private async Task ImageLoaded()
     {
-        if (MapImgRef.Context != null)
-        {
-            var dimensions = await JS.InvokeAsync<int[]>("getImageNaturalSize", MapImgRef);
-            MapWidth = dimensions[0];
-            MapHeight = dimensions[1];
+        var dimensions = await JS.InvokeAsync<int[]>("getImageNaturalSize", MapImgRef);
+        MapWidth = dimensions[0];
+        MapHeight = dimensions[1];
 
-            await JS.InvokeVoidAsync("initializeFog", CanvasRef, MapWidth, MapHeight);
+        await JS.InvokeVoidAsync("initializeFog", CanvasRef, MapWidth, MapHeight);
+        await JS.InvokeVoidAsync("startMapHubConnection");
 
-            // Connect SignalR for real-time updates
-            await JS.InvokeVoidAsync("startMapHubConnection");
-
-            _jsInitialized = true;
-            StateHasChanged();
-        }
+        _jsInitialized = true;
+        StateHasChanged();
     }
 
     private void StartDrawing(PointerEventArgs e)
@@ -115,29 +113,17 @@
         Draw(e);
     }
 
-    private void StopDrawing(PointerEventArgs e)
-    {
-        _isDrawing = false;
-    }
+    private void StopDrawing(PointerEventArgs e) => _isDrawing = false;
 
     private async void Draw(PointerEventArgs e)
     {
         if (!_isDrawing || !_jsInitialized) return;
-
         await JS.InvokeVoidAsync("paintFog", CanvasRef, e.OffsetX, e.OffsetY, BrushSize, IsErasing);
     }
 
-    private async Task CompleteMap()
+    private async Task SendFullFogToPlayers()
     {
-        if (!_jsInitialized) return;
-
-        // Save the fog layer (optional server-side)
-        await JS.InvokeVoidAsync("saveFogLayer", CanvasRef);
-
-        // Generate player link
-        var uri = Nav.ToAbsoluteUri($"/player/{Path.GetFileName(MapUrl)}");
-        PlayerLink = uri.ToString();
-
-        StateHasChanged();
+        await JS.InvokeVoidAsync("storeFullFog");
+        await JS.InvokeVoidAsync("sendFullFogToPlayer");
     }
 }

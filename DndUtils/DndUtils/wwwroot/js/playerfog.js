@@ -3,14 +3,11 @@
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext("2d");
-    canvas._ctx = ctx;
-
-    // Fill the player canvas with solid grey fog
     ctx.fillStyle = "grey";
     ctx.fillRect(0, 0, width, height);
 };
 
-window.startMapHubConnection = async (isPlayer = false) => {
+window.startPlayerHubConnection = async () => {
     if (window.mapHubConnection) return;
 
     window.mapHubConnection = new signalR.HubConnectionBuilder()
@@ -18,19 +15,46 @@ window.startMapHubConnection = async (isPlayer = false) => {
         .withAutomaticReconnect()
         .build();
 
-    window.mapHubConnection.onclose(() => console.log("Hub closed"));
-
     await window.mapHubConnection.start();
-    console.log("Hub connection started"); // <-- check console
+    console.log("Player Hub connected");
 
-    if (isPlayer) {
-        window.mapHubConnection.on("ReceiveFogUpdate", (base64Chunk, x, y, width, height) => {
-            const img = new Image();
-            img.onload = () => {
-                const ctx = document.getElementById("playerCanvas").getContext("2d");
-                ctx.drawImage(img, x, y);
-            };
-            img.src = base64Chunk;
-        });
-    }
+    const canvas = document.getElementById("playerCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Draw chunks sent from DM
+    window.mapHubConnection.on("ReceiveFogUpdate", (base64Chunk, x, y, width, height) => {
+        const canvas = document.getElementById("playerCanvas");
+        const ctx = canvas.getContext("2d");
+
+        const img = new Image();
+        img.onload = () => {
+            // Draw to temporary canvas
+            const temp = document.createElement("canvas");
+            temp.width = img.width;
+            temp.height = img.height;
+            const tempCtx = temp.getContext("2d");
+            tempCtx.drawImage(img, 0, 0);
+
+            // Copy pixels directly to player canvas
+            const imgData = tempCtx.getImageData(0, 0, temp.width, temp.height);
+            const data = imgData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                if (data[i + 3] > 0) { // any visible pixel
+                    data[i] = 128;     // R
+                    data[i + 1] = 128; // G
+                    data[i + 2] = 128; // B
+                    data[i + 3] = 255; // alpha = fully opaque
+                }
+            }
+
+            // Draw processed image data to player canvas
+            ctx.putImageData(imgData, x, y);
+        };
+        img.src = base64Chunk;
+    });
+
+
+    // Request full fog on first connection
+    await window.mapHubConnection.invoke("RequestFullFog");
 };

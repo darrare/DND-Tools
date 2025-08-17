@@ -1,54 +1,32 @@
 ﻿@page "/player/{mapFile}"
 @rendermode InteractiveServer
-@using Microsoft.JSInterop
 @inject IJSRuntime JS
 
-<h3>Player View</h3>
+<div style="position: relative; display: inline-block;">
+    <img id="mapImage" src="@MapUrl"
+         style="display:block; max-width:100%; height:auto; border:1px solid black;"
+         @ref="MapImgRef"
+         @onload="ImageLoaded" />
 
-@if (!string.IsNullOrEmpty(MapUrl))
-{
-    <div style="position: relative; display: inline-block;">
-        <img src="@MapUrl"
-             style="display:block; max-width:100%; height:auto; border:1px solid black;"
-             @ref="MapImgRef"
-             @onload="ImageLoaded" />
-
-        <canvas id="playerCanvas"
-                style="position:absolute; top:0; left:0; pointer-events:none;">
-        </canvas>
-    </div>
-}
+    <canvas id="playerCanvas"
+            style="position:absolute; top:0; left:0; pointer-events:none;">
+    </canvas>
+</div>
 
 @code {
     [Parameter] public string mapFile { get; set; }
-
-    private string MapUrl;
+    private string MapUrl => $"/uploads/{mapFile}";
     private ElementReference MapImgRef;
     private int MapWidth;
     private int MapHeight;
-    private bool _jsInitialized = false;
-
-    protected override void OnInitialized()
-    {
-        MapUrl = $"/uploads/{mapFile}";
-    }
 
     private async Task ImageLoaded()
     {
-        if (MapImgRef.Context != null)
-        {
-            // get natural dimensions of the map
-            var dimensions = await JS.InvokeAsync<int[]>("getImageNaturalSize", MapImgRef);
-            MapWidth = dimensions[0];
-            MapHeight = dimensions[1];
+        var dimensions = await JS.InvokeAsync<int[]>("getImageNaturalSize", MapImgRef);
+        MapWidth = dimensions[0];
+        MapHeight = dimensions[1];
 
-            // initialize the player fog canvas
-            await JS.InvokeVoidAsync("initializePlayerFog", MapWidth, MapHeight);
-
-            // start SignalR connection
-            await JS.InvokeVoidAsync("startMapHubConnection", true); // true = player mode
-
-            _jsInitialized = true;
-        }
+        await JS.InvokeVoidAsync("initializePlayerFog", MapWidth, MapHeight);
+        await JS.InvokeVoidAsync("startPlayerHubConnection");
     }
 }
