@@ -1,3 +1,4 @@
+using DndUtils;
 using DndUtils.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,5 +24,7 @@ app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+app.MapHub<MapHub>("/mapHub");
 
 app.Run();

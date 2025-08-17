@@ -1,6 +1,4 @@
-﻿window.getImageNaturalSize = (img) => {
-    return [img.naturalWidth, img.naturalHeight];
-}
+﻿window.getImageNaturalSize = (img) => [img.naturalWidth, img.naturalHeight];
 
 window.initializeFog = (canvas, width, height) => {
     canvas.width = width;
@@ -9,24 +7,12 @@ window.initializeFog = (canvas, width, height) => {
     const ctx = canvas.getContext("2d");
     canvas._ctx = ctx;
 
-    // Create an offscreen canvas to store fog layer
-    const offscreen = document.createElement("canvas");
-    offscreen.width = width;
-    offscreen.height = height;
-    const offCtx = offscreen.getContext("2d");
-
-    // Fill offscreen with semi-transparent black
-    offCtx.fillStyle = "rgba(0,0,0,0.7)";
-    offCtx.fillRect(0, 0, width, height);
-
-    canvas._offscreen = offscreen;
-    canvas._offCtx = offCtx;
-
-    // Draw the offscreen onto visible canvas
-    ctx.clearRect(0, 0, width, height);
-    ctx.drawImage(offscreen, 0, 0);
+    // Fill canvas with semi-transparent black
+    ctx.fillStyle = "rgba(0,0,0,0.7)";
+    ctx.fillRect(0, 0, width, height);
 };
 
+// DM paints on canvas and sends updates to players
 window.paintFog = (canvas, x, y, radius, erase) => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -34,7 +20,6 @@ window.paintFog = (canvas, x, y, radius, erase) => {
     const width = canvas.width;
     const height = canvas.height;
 
-    // Compute bounds of the square we will read
     const startX = Math.max(0, Math.floor(x - radius));
     const startY = Math.max(0, Math.floor(y - radius));
     const endX = Math.min(width, Math.ceil(x + radius));
@@ -45,25 +30,54 @@ window.paintFog = (canvas, x, y, radius, erase) => {
 
     for (let j = 0; j < imgData.height; j++) {
         for (let i = 0; i < imgData.width; i++) {
-            // Compute distance from brush center
             const dx = (startX + i) - x;
             const dy = (startY + j) - y;
 
             if (dx * dx + dy * dy <= radius * radius) {
                 const index = (j * imgData.width + i) * 4;
 
-                if (erase) {
-                    data[index + 3] = 0; // alpha = 0 -> reveal
-                } else {
-                    data[index] = 0;     // R
-                    data[index + 1] = 0; // G
-                    data[index + 2] = 0; // B
-                    data[index + 3] = 178; // alpha = 0.7*255
-                }
+                if (erase) data[index + 3] = 0; // reveal
+                else data[index + 3] = 178;    // 0.7 alpha
             }
         }
     }
 
     ctx.putImageData(imgData, startX, startY);
+
+    // Send update via SignalR
+    if (window.mapHubConnection) {
+        const tempCanvas = document.createElement("canvas");
+        tempCanvas.width = endX - startX;
+        tempCanvas.height = endY - startY;
+        tempCanvas.getContext("2d").putImageData(imgData, 0, 0);
+        const base64Chunk = tempCanvas.toDataURL("image/png");
+
+        window.mapHubConnection.invoke("UpdateFog", base64Chunk, startX, startY, endX - startX, endY - startY);
+    }
 };
 
+// Connect to SignalR hub
+window.startMapHubConnection = async () => {
+    window.mapHubConnection = new signalR.HubConnectionBuilder()
+        .withUrl("/mapHub")
+        .withAutomaticReconnect()
+        .build();
+
+    await window.mapHubConnection.start();
+
+    // Listen for fog updates (players only)
+    window.mapHubConnection.on("ReceiveFogUpdate", (base64Chunk, x, y, width, height) => {
+        const img = new Image();
+        img.onload = () => {
+            const ctx = document.getElementById("playerCanvas").getContext("2d");
+            ctx.drawImage(img, x, y);
+        };
+        img.src = base64Chunk;
+    });
+};
+
+// Optional: Save DM fog layer as PNG
+window.saveFogLayer = (canvas) => {
+    const dataURL = canvas.toDataURL("image/png");
+    console.log("Fog saved as PNG", dataURL); // You can send to server
+};
