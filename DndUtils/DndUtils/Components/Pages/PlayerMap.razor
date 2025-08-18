@@ -1,23 +1,15 @@
-﻿@page "/player/{mapFile}"
+﻿@page "/player/{roomId}"
 @rendermode InteractiveServer
 @inject IJSRuntime JS
 
-<canvas id="playerCanvas" style="display:block; max-width:100%; height:auto; border:1px solid black; pointer-events:none;">
-</canvas>
+<canvas id="playerCanvas" style="display:block; max-width:100%; height:auto; border:1px solid black; pointer-events:none;"></canvas>
 
 @code {
-    [Parameter] public string mapFile { get; set; }
-    private int MapWidth;
-    private int MapHeight;
+    [Parameter] public string roomId { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return;
-
-        // Initialize canvas size arbitrarily; will be set correctly by DM update
-        MapWidth = 1024;
-        MapHeight = 768;
-        await JS.InvokeVoidAsync("initializePlayerFog", MapWidth, MapHeight);
-        await JS.InvokeVoidAsync("startPlayerHubConnection");
+        await JS.InvokeVoidAsync("startPlayerHubConnection", roomId);
     }
 }

@@ -86,44 +86,81 @@ window.paintFog = async (canvas, x, y, radius, erase) => {
         tempCtx.drawImage(fogCanvas, 0, 0);
 
         const base64Chunk = tempCanvas.toDataURL("image/png");
-        await window.mapHubConnection.invoke("UpdateFog", base64Chunk, startX, startY, endX - startX, endY - startY);
+        //await window.mapHubConnection.invoke("UpdateFog", base64Chunk, startX, startY, endX - startX, endY - startY);
+        broadcastFogChunk(base64Chunk, startX, startY, endX - startX, endY - startY);
     }
 };
 
-// Store current fog for new players
-window.storeFullFog = () => {
-    const canvas = document.getElementById("fogCanvas");
-    window._dmFullFog = canvas.toDataURL("image/png");
-};
-
-// Send full fog to all current players
-window.sendFullFogToPlayer = async () => {
-    if (!window.mapHubConnection) return;
-    const canvas = document.getElementById("fogCanvas");
-    const base64 = window._dmFullFog ?? canvas.toDataURL("image/png");
-    await window.mapHubConnection.invoke("UpdateFog", base64, 0, 0, canvas.width, canvas.height);
-};
-
-// Send full fog to a new player on request
-window.sendFullFogToNewPlayer = async (connectionId) => {
-    if (!window.mapHubConnection || !window._dmFullFog) return;
-    const canvas = document.getElementById("fogCanvas");
-    await window.mapHubConnection.invoke("UpdateFog", window._dmFullFog, 0, 0, canvas.width, canvas.height);
-};
-
-// Start DM hub connection
-window.startMapHubConnection = async () => {
+window.startDmHubConnection = async (roomId, canvasId) => {
     if (window.mapHubConnection) return;
+
+    const canvas = document.getElementById(canvasId);
 
     window.mapHubConnection = new signalR.HubConnectionBuilder()
         .withUrl("/mapHub")
         .withAutomaticReconnect()
         .build();
 
-    window.mapHubConnection.on("SendFullFogToPlayer", async (connectionId) => {
-        await window.sendFullFogToNewPlayer(connectionId);
-    });
-
     await window.mapHubConnection.start();
     console.log("DM Hub connected");
+
+    // Join as DM
+    await window.mapHubConnection.invoke("JoinRoom", roomId, true);
+
+    // When a player joins, send them the full snapshot
+    window.mapHubConnection.on("PlayerJoined", async (connectionId) => {
+        // Create a composite canvas (map + fog)
+        const composite = document.createElement("canvas");
+        composite.width = fogCanvas.width;
+        composite.height = fogCanvas.height;
+        const compositeCtx = composite.getContext("2d");
+
+        // Draw base map
+        const mapImg = document.getElementById("mapImage");
+        compositeCtx.drawImage(mapImg, 0, 0, composite.width, composite.height);
+
+        // Overlay fog layer
+        compositeCtx.drawImage(fogCanvas, 0, 0);
+
+        updateCanvasColors(composite, compositeCtx);
+
+        // Encode result
+        const fullImageBase64 = composite.toDataURL("image/png");
+        await window.mapHubConnection.invoke("SendFullFogToPlayer", connectionId, fullImageBase64);
+    });
+
+    // Broadcast chunks normally when you reveal fog
+    window.broadcastFogChunk = async (base64Chunk, x, y, width, height) => {
+        await window.mapHubConnection.invoke("BroadcastFogUpdate", roomId, base64Chunk, x, y, width, height);
+    };
 };
+
+function updateCanvasColors(canvas, ctx) {
+    // Get the image data (all pixels)
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imgData.data; // Uint8ClampedArray [r, g, b, a, r, g, b, a, ...]
+
+    // Define your colors
+    const colorB = { r: 0, g: 0, b: 0, a: 178 };   // the "old" color (B)
+    const colorC = { r: 176, g: 176, b: 176, a: 1 }; // the "new" color
+
+    // Loop over every pixel
+    for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        const a = data[i + 3];
+
+        // Check if pixel matches colorB
+        if (r === colorB.r && g === colorB.g && b === colorB.b && a === colorB.a) {
+            // Replace with colorC
+            data[i] = colorC.r;
+            data[i + 1] = colorC.g;
+            data[i + 2] = colorC.b;
+            data[i + 3] = colorC.a;
+        }
+    }
+
+    // Push the modified data back onto the canvas
+    ctx.putImageData(imgData, 0, 0);
+}

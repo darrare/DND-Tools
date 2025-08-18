@@ -23,10 +23,6 @@
                 <input type="checkbox" @bind="IsErasing" />
                 Erase (Reveal Map)
             </label>
-
-            <button class="btn btn-success ms-3" @onclick="SendFullFogToPlayers" disabled="!_jsInitialized">
-                Send Full Fog
-            </button>
         </div>
 
         <div class="mt-2">
@@ -69,6 +65,14 @@
         ? ""
         : NavigationManager.BaseUri + $"player/{Path.GetFileName(MapUrl)}";
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("startDmHubConnection", "test", "fogCanvas");
+        }
+    }
+
     private void HandleFileSelected(InputFileChangeEventArgs e)
     {
         _selectedFile = e.File;
@@ -101,7 +105,7 @@
         MapHeight = dimensions[1];
 
         await JS.InvokeVoidAsync("initializeFog", CanvasRef, MapWidth, MapHeight);
-        await JS.InvokeVoidAsync("startMapHubConnection");
+       // await JS.InvokeVoidAsync("startMapHubConnection");
 
         _jsInitialized = true;
         StateHasChanged();
@@ -119,11 +123,5 @@
     {
         if (!_isDrawing || !_jsInitialized) return;
         await JS.InvokeVoidAsync("paintFog", CanvasRef, e.OffsetX, e.OffsetY, BrushSize, IsErasing);
-    }
-
-    private async Task SendFullFogToPlayers()
-    {
-        await JS.InvokeVoidAsync("storeFullFog");
-        await JS.InvokeVoidAsync("sendFullFogToPlayer");
     }
 }
